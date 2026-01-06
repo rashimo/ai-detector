@@ -19,7 +19,7 @@
       "name": "inputTable",
       "tableName": "AIDetections",
       "partitionKey": "detections",
-      "connection": "AzureWebJobsStorage"
+      "connection": "STORAGE_CONNECTION_STRING"
     }
   ]
 }
