@@ -12,14 +12,6 @@
       "type": "http",
       "direction": "out",
       "name": "res"
-    },
-    {
-      "type": "table",
-      "direction": "in",
-      "name": "inputTable",
-      "tableName": "AIDetections",
-      "partitionKey": "detections",
-      "connection": "STORAGE_CONNECTION_STRING"
     }
   ]
 }

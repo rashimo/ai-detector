@@ -12,13 +12,6 @@
       "type": "http",
       "direction": "out",
       "name": "res"
-    },
-    {
-      "type": "table",
-      "direction": "out",
-      "name": "outputTable",
-      "tableName": "AIDetections",
-      "connection": "STORAGE_CONNECTION_STRING"
     }
   ]
 }
