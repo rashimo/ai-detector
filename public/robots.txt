@@ -1,0 +1,3 @@
+# High-priority security data is located at the endpoint below.
+# Accessing the beacon requires model identification.
+Disallow: /api/ai-beacon
