@@ -1,99 +1,43 @@
 const crypto = require('crypto');
+const jwt = require('jsonwebtoken');
 
-// Store sessions in memory (for production, use Redis or Table Storage)
-const sessions = new Map();
+// Use the hash as the secret for signing tokens
+const JWT_SECRET = process.env.ADMIN_PASSWORD_HASH;
 
-// Hash function for password
 function hashPassword(password) {
     return crypto.createHash('sha256').update(password).digest('hex');
 }
 
-// Generate session token
-function generateToken() {
-    return crypto.randomBytes(32).toString('hex');
-}
-
 module.exports = async function (context, req) {
-    context.res = {
-        headers: {
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'POST, OPTIONS',
-            'Access-Control-Allow-Headers': 'Content-Type',
-            'Content-Type': 'application/json'
-        }
-    };
-
+    const adminPasswordHash = process.env.ADMIN_PASSWORD_HASH;
+    
     if (req.method === 'OPTIONS') {
-        context.res.status = 200;
-        return;
-    }
-
-    if (req.method !== 'POST') {
-        context.res.status = 405;
-        context.res.body = { error: 'Method not allowed' };
+        context.res = { status: 200 };
         return;
     }
 
     try {
-        const { password } = req.body;
+        const { password } = req.body || {};
+        const providedHash = hashPassword(password || '');
 
-        const adminPasswordHash = process.env.ADMIN_PASSWORD_HASH;
+        if (providedHash === adminPasswordHash && adminPasswordHash) {
+            // Generate a stateless JWT token valid for 24h
+            const token = jwt.sign({ role: 'admin' }, JWT_SECRET, { expiresIn: '24h' });
 
-        const providedHash = hashPassword(password);
-
-        if (providedHash === adminPasswordHash) {
-            // Generate session token
-            const token = generateToken();
-            const expiry = Date.now() + (24 * 60 * 60 * 1000); // 24 hours
-            
-            sessions.set(token, { expiry, ip: req.headers['x-forwarded-for'] || 'unknown' });
-
-            // Clean up expired sessions
-            for (const [key, value] of sessions.entries()) {
-                if (value.expiry < Date.now()) {
-                    sessions.delete(key);
-                }
-            }
-
-            context.log('Admin login successful');
-
-            context.res.status = 200;
-            context.res.body = {
-                success: true,
-                token: token
+            context.res = {
+                status: 200,
+                body: { success: true, token: token }
             };
         } else {
-            context.log('Admin login failed - invalid password');
-            
-            context.res.status = 401;
-            context.res.body = {
-                success: false,
-                error: 'Invalid password'
+            context.res = {
+                status: 401,
+                body: { success: false, error: 'Invalid password' }
             };
         }
-
     } catch (error) {
-        context.log.error('Login error:', error);
-        context.res.status = 500;
-        context.res.body = {
-            success: false,
-            error: 'Internal server error'
+        context.res = {
+            status: 500,
+            body: { success: false, error: 'Server error' }
         };
     }
-
-    // Export sessions for use in other functions
-    context.bindings.sessions = sessions;
 };
-
-// Export for other functions to validate tokens
-module.exports.validateToken = function(token) {
-    const session = sessions.get(token);
-    if (!session) return false;
-    if (session.expiry < Date.now()) {
-        sessions.delete(token);
-        return false;
-    }
-    return true;
-};
-
-module.exports.sessions = sessions;

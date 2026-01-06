@@ -9,6 +9,13 @@
       "route": "detections"
     },
     {
+      "type": "table",
+      "direction": "in",
+      "name": "inputTable",
+      "tableName": "AIDetections",
+      "connection": "STORAGE_CONNECTION_STRING"
+    },
+    {
       "type": "http",
       "direction": "out",
       "name": "res"
