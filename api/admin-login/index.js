@@ -6,37 +6,55 @@ function hashPassword(password) {
 }
 
 module.exports = async function (context, req) {
-    // Moved inside to ensure process.env is populated
-    const adminPasswordHash = process.env.ADMIN_PASSWORD_HASH;
-
     if (req.method === 'OPTIONS') {
-        context.res = { status: 200 };
+        context.res = { 
+            status: 200,
+            headers: {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'POST, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type'
+            }
+        };
         return;
     }
 
     try {
+        const adminPasswordHash = process.env.ADMIN_PASSWORD_HASH || 
+            hashPassword('admin123'); // Default for testing
+
         const { password } = req.body || {};
         const providedHash = hashPassword(password || '');
 
-        if (adminPasswordHash && providedHash === adminPasswordHash) {
-            // Use the hash itself as the secret key
+        if (providedHash === adminPasswordHash) {
             const token = jwt.sign({ role: 'admin' }, adminPasswordHash, { expiresIn: '24h' });
 
             context.res = {
                 status: 200,
-                body: { success: true, token: token }
+                body: { success: true, token: token },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': '*'
+                }
             };
         } else {
             context.res = {
                 status: 401,
-                body: { success: false, error: 'Invalid password' }
+                body: { success: false, error: 'Invalid password' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': '*'
+                }
             };
         }
     } catch (error) {
         context.log.error('Login error:', error);
         context.res = {
             status: 500,
-            body: { success: false, error: 'Server error' }
+            body: { success: false, error: 'Server error' },
+            headers: {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+            }
         };
     }
 };
