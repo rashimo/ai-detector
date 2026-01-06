@@ -1,0 +1,11 @@
+{
+  "name": "ai-detector-api",
+  "version": "1.0.0",
+  "description": "Azure Functions for AI detection",
+  "scripts": {
+    "start": "func start",
+    "test": "echo \"No tests yet\""
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}
