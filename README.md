@@ -1,1 +1,1 @@
-# AI Detector - Updated Tue Jan  6 01:29:12 PM CET 2026
+# Samples of indirect or direct promt injection
