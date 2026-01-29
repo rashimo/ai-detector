@@ -7,6 +7,26 @@
       "route": "/api/ai-beacon",
       "methods": ["POST", "OPTIONS"],
       "allowedRoles": ["anonymous"]
+    },
+    {
+      "route": "/api/beacon",
+      "methods": ["POST", "OPTIONS"],
+      "allowedRoles": ["anonymous"]
+    },
+    {
+      "route": "/api/verify",
+      "methods": ["POST", "OPTIONS"],
+      "allowedRoles": ["anonymous"]
+    },
+    {
+      "route": "/api/register",
+      "methods": ["POST", "OPTIONS"],
+      "allowedRoles": ["anonymous"]
+    },
+    {
+      "route": "/api/config",
+      "methods": ["POST", "OPTIONS"],
+      "allowedRoles": ["anonymous"]
     }
   ],
   "responseOverrides": {
